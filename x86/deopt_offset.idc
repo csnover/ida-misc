@@ -173,28 +173,29 @@ static deopt_offset() {
 		}
 		r = substr(r, 0, offset_pos - 1);
 
-		if (substr(mnem, 0, 3) == "mov") {
+		auto other_nt = GetOpType(ea, 1 - n);
+		auto strip_prefix = 0;
+		if (other_nt == 1) {
 			auto other_r = GetOpnd(ea, 1 - n);
 			auto other_size;
-			auto r_prefix;
 			if (other_r[0] == "q") {
 				other_size = 8;
-				r_prefix = "qword ptr ";
 			} else if (other_r[0] == "e") {
 				other_size = 4;
-				r_prefix = "dword ptr ";
 			} else if (other_size == 2 && strstr("lh", other_r[1]) != -1) {
 				other_size = 1;
-				r_prefix = "byte ptr ";
 			} else {
 				other_size = 2;
-				r_prefix = "word ptr ";
 			}
 
-			auto mnem_ext = substr(mnem, 3, 5);
-			if (mnem_ext != "" || (member_size == other_size && substr(r, 0, strlen(r_prefix) - 1) == r_prefix)) {
-				r = substr(r, strlen(r_prefix) - 1, -1);
-			}
+			auto is_mov_ext = substr(mnem, 0, 3) == "mov" && mnem[4] == "x";
+			strip_prefix = (is_mov_ext || member_size == other_size);
+		} else if (other_nt == 5) {
+			strip_prefix = 1;
+		}
+
+		if (strip_prefix != 0) {
+			r = substr(r, strstr(r, "["), -1);
 		}
 
 		OpAlt(ea, n, sprintf("%s+%s-%s]", r, object_path, item_name));
