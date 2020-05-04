@@ -125,6 +125,17 @@ static deopt_offset() {
 		auto member_offset = GetMemberOffset(struct_id, member_name);
 		if (member_offset == offset) {
 			member_size = GetMemberSize(struct_id, member_offset);
+
+			if (mnem != "lea") {
+				struct_id = GetMemberStrId(struct_id, member_offset);
+				while (struct_id != -1) {
+					member_name = GetMemberName(struct_id, 0);
+					member_size = GetMemberSize(struct_id, 0);
+					object_path = object_path + "." + member_name;
+					struct_id = GetMemberStrId(struct_id, 0);
+				}
+			}
+
 			break;
 		}
 
