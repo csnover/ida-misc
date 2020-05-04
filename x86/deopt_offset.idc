@@ -76,10 +76,10 @@ static deopt_offset() {
 	auto mnem = GetMnem(ea);
 	auto ot0 = GetOpType(ea, 0);
 	auto ot1 = GetOpType(ea, 1);
-	if ((ot0 == 4 || ot0 == 5) && ot1 != 4 && ot1 != 5) {
+	if ((ot0 == 4 || ot0 == 5) && ot1 != 4) {
 		n = 0;
 		nt = ot0;
-	} else if ((ot1 == 4 || ot1 == 5) && ot0 != 4 && ot0 != 5) {
+	} else if ((ot1 == 4 || ot1 == 5) && ot0 != 4) {
 		n = 1;
 		nt = ot1;
 	} else {
@@ -126,13 +126,18 @@ static deopt_offset() {
 		if (member_offset == offset) {
 			member_size = GetMemberSize(struct_id, member_offset);
 
-			if (mnem != "lea") {
-				struct_id = GetMemberStrId(struct_id, member_offset);
-				while (struct_id != -1) {
-					member_name = GetMemberName(struct_id, 0);
-					member_size = GetMemberSize(struct_id, 0);
-					object_path = object_path + "." + member_name;
-					struct_id = GetMemberStrId(struct_id, 0);
+			struct_id = GetMemberStrId(struct_id, member_offset);
+			if (struct_id != -1 && (mnem == "lea" || mnem == "sub")) {
+				auto force_zero = AskYN(0, "Force zero field offset?");
+				if (force_zero == -1) {
+					return;
+				} else if (force_zero == 1) {
+					while (struct_id != -1) {
+						member_name = GetMemberName(struct_id, 0);
+						member_size = GetMemberSize(struct_id, 0);
+						object_path = object_path + "." + member_name;
+						struct_id = GetMemberStrId(struct_id, 0);
+					}
 				}
 			}
 
