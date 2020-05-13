@@ -95,6 +95,8 @@ static deopt_offset() {
 		offset = GetOperandValue(ea, n) + num_items * item_size;
 	} else if (nt == 5 && mnem == "sub") {
 		offset = num_items * item_size - GetOperandValue(ea, n);
+	} else if (nt == 5 && mnem == "add") {
+		offset = num_items * item_size + GetOperandValue(ea, n);
 	} else {
 		Warning("Cannot adjust operand of type %d", nt);
 		return;
@@ -199,7 +201,11 @@ static deopt_offset() {
 		}
 
 		OpAlt(ea, n, sprintf("%s+%s-%s]", r, object_path, item_name));
-	} else if (nt == 5) {
+	} else if (nt == 5 && mnem == "sub") {
 		OpAlt(ea, n, sprintf("%s-%s", item_name, object_path));
+	} else if (nt == 5 && mnem == "add") {
+		OpAlt(ea, n, sprintf("%s-%s", object_path, item_name));
+	} else {
+		Warning("Impossible condition");
 	}
 }
