@@ -133,14 +133,16 @@ static deopt_offset() {
 				auto force_zero = AskYN(0, "Force zero field offset?");
 				if (force_zero == -1) {
 					return;
-				} else if (force_zero == 1) {
-					while (struct_id != -1) {
-						member_name = GetMemberName(struct_id, 0);
-						member_size = GetMemberSize(struct_id, 0);
-						object_path = object_path + "." + member_name;
-						struct_id = GetMemberStrId(struct_id, 0);
-					}
+				} else if (force_zero == 0) {
+					struct_id = -1;
 				}
+			}
+
+			while (struct_id != -1) {
+				member_name = GetMemberName(struct_id, 0);
+				member_size = GetMemberSize(struct_id, 0);
+				object_path = object_path + "." + member_name;
+				struct_id = GetMemberStrId(struct_id, 0);
 			}
 
 			break;
